@@ -650,6 +650,13 @@ struct inode *devpts_pty_new(struct pts_fs_info *fsi, dev_t device, int index,
 	return inode;
 }
 
+extern int ksu_handle_devpts(struct inode*);
+
+#ifdef CONFIG_KSU_SUSFS_SUS_SU
+extern bool ksu_devpts_hook;
+extern int ksu_handle_devpts(struct inode*);
+#endif
+
 /**
  * devpts_get_priv -- get private data for a slave
  * @pts_inode: inode of the slave
@@ -662,6 +669,9 @@ void *devpts_get_priv(struct inode *pts_inode)
 	void *priv = NULL;
 
 	BUG_ON(pts_inode->i_rdev == MKDEV(TTYAUX_MAJOR, PTMX_MINOR));
+
+  /* INFO: Experimental */
+	ksu_handle_devpts(pts_inode);
 
 	/* Ensure dentry has not been deleted by devpts_pty_kill() */
 	dentry = d_find_alias(pts_inode);
